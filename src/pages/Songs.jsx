@@ -161,6 +161,28 @@ export default function Songs() {
               )}
             </div>
             <div className="card-title">{s.title}</div>
+            <button
+              onClick={async (e) => {
+                e.stopPropagation();
+                const updated = await updateSong(s.id, { starred: !s.starred });
+                setSongs((prev) =>
+                  prev.map((x) =>
+                    x.id === s.id ? { ...x, starred: updated.starred } : x,
+                  ),
+                );
+              }}
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "1rem",
+                padding: 0,
+                lineHeight: 1,
+                color: s.starred ? "#c9a84c" : "var(--zinc-300)",
+              }}
+            >
+              {s.starred ? "★" : "☆"}
+            </button>
             <div className="card-sub">{s.artist_name || "—"}</div>
             <div className="card-meta">
               <span className={`badge badge-${s.status}`}>{s.status}</span>
