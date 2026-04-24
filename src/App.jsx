@@ -8,7 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
 import Listen from "./pages/Listen";
 import NotFound from "./pages/NotFound";
-
+import Mobile from "./pages/Mobile";
 
 export default function App() {
   return (
@@ -16,6 +16,7 @@ export default function App() {
       <Routes>
         {/* PUBLIC — no navbar */}
         <Route path="/listen/:id" element={<Listen />} />
+        <Route path="/mobile" element={<Mobile />} />
 
         {/* APP — with navbar */}
         <Route
