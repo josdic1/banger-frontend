@@ -157,6 +157,31 @@ export default function Songs() {
                   alt={s.title}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
+              ) : s.spotify_url ? (
+                <a
+                  href={s.spotify_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    textDecoration: "none",
+                  }}
+                >
+                  <span style={{ fontSize: "2rem" }}>🟢</span>
+                  <span
+                    style={{
+                      fontSize: "10px",
+                      color: "var(--zinc-500)",
+                      letterSpacing: "0.06em",
+                    }}
+                  >
+                    spotify
+                  </span>
+                </a>
               ) : (
                 "🎵"
               )}
