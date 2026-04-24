@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   getSongs,
   createSong,
@@ -18,7 +18,7 @@ import {
   getSongLinks,
   MEDIA_URL,
 } from "../api";
-import { Plus, X, ArrowRight } from "lucide-react";
+import { Plus, X, ArrowRight, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Songs() {
@@ -39,6 +39,14 @@ export default function Songs() {
   const [quickMoods, setQuickMoods] = useState([]);
   const [quickGenres, setQuickGenres] = useState([]);
 
+  // FILTERS
+  const [search, setSearch] = useState("");
+  const [filterArtist, setFilterArtist] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterGenre, setFilterGenre] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+  const [starredOnly, setStarredOnly] = useState(false);
+
   useEffect(() => {
     getSongs().then(setSongs);
     getArtists().then(setArtists);
@@ -48,6 +56,48 @@ export default function Songs() {
     getList("key").then((r) => setKeys(r.map((x) => x.value)));
     getList("time_signature").then((r) => setTimeSigs(r.map((x) => x.value)));
   }, []);
+
+  const filtered = useMemo(() => {
+    let result = [...songs];
+    if (search)
+      result = result.filter((s) =>
+        s.title?.toLowerCase().includes(search.toLowerCase()),
+      );
+    if (filterArtist)
+      result = result.filter((s) => s.artist_id === parseInt(filterArtist));
+    if (filterStatus) result = result.filter((s) => s.status === filterStatus);
+    if (filterGenre)
+      result = result.filter((s) => s.genre_id === parseInt(filterGenre));
+    if (starredOnly) result = result.filter((s) => s.starred);
+    result.sort((a, b) => {
+      if (sortBy === "newest")
+        return new Date(b.created_at) - new Date(a.created_at);
+      if (sortBy === "oldest")
+        return new Date(a.created_at) - new Date(b.created_at);
+      if (sortBy === "title")
+        return (a.title || "").localeCompare(b.title || "");
+      if (sortBy === "artist")
+        return (a.artist_name || "").localeCompare(b.artist_name || "");
+      return 0;
+    });
+    return result;
+  }, [
+    songs,
+    search,
+    filterArtist,
+    filterStatus,
+    filterGenre,
+    sortBy,
+    starredOnly,
+  ]);
+
+  const hasFilters =
+    search ||
+    filterArtist ||
+    filterStatus ||
+    filterGenre ||
+    starredOnly ||
+    sortBy !== "newest";
 
   async function openQuickLook(song) {
     setDrawer(song);
@@ -139,12 +189,124 @@ export default function Songs() {
         <h1 className="page-title">Songs</h1>
       </div>
 
+      {/* FILTER BAR */}
+      <div
+        style={{
+          display: "flex",
+          gap: "0.5rem",
+          marginBottom: "1.25rem",
+          flexWrap: "wrap",
+          alignItems: "center",
+        }}
+      >
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="search..."
+          className="bng-input"
+          style={{ width: "160px" }}
+        />
+        <select
+          value={filterArtist}
+          onChange={(e) => setFilterArtist(e.target.value)}
+          className="bng-select"
+          style={{ width: "auto" }}
+        >
+          <option value="">all artists</option>
+          {artists.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="bng-select"
+          style={{ width: "auto" }}
+        >
+          <option value="">all statuses</option>
+          {statuses.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filterGenre}
+          onChange={(e) => setFilterGenre(e.target.value)}
+          className="bng-select"
+          style={{ width: "auto" }}
+        >
+          <option value="">all genres</option>
+          {genres.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.title}
+            </option>
+          ))}
+        </select>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="bng-select"
+          style={{ width: "auto" }}
+        >
+          <option value="newest">newest</option>
+          <option value="oldest">oldest</option>
+          <option value="title">title a–z</option>
+          <option value="artist">artist a–z</option>
+        </select>
+        <button
+          onClick={() => setStarredOnly((s) => !s)}
+          style={{
+            background: starredOnly ? "rgba(201,168,76,0.15)" : "none",
+            border: `1px solid ${starredOnly ? "#c9a84c" : "var(--zinc-200)"}`,
+            borderRadius: "6px",
+            padding: "0.4rem 0.6rem",
+            color: starredOnly ? "#c9a84c" : "var(--zinc-500)",
+            cursor: "pointer",
+            fontSize: "14px",
+            lineHeight: 1,
+          }}
+          title="starred only"
+        >
+          ★
+        </button>
+        {hasFilters && (
+          <button
+            onClick={() => {
+              setSearch("");
+              setFilterArtist("");
+              setFilterStatus("");
+              setFilterGenre("");
+              setSortBy("newest");
+              setStarredOnly(false);
+            }}
+            className="btn-ghost btn-ghost--small"
+          >
+            clear
+          </button>
+        )}
+        <span
+          style={{
+            fontSize: "12px",
+            color: "var(--zinc-400)",
+            marginLeft: "auto",
+          }}
+        >
+          {filtered.length} of {songs.length}
+        </span>
+      </div>
+
+      {filtered.length === 0 && songs.length > 0 && (
+        <p className="empty">no songs match your filters.</p>
+      )}
       {songs.length === 0 && (
         <p className="empty">No songs yet. Hit + to add one.</p>
       )}
 
       <div className="song-grid">
-        {songs.map((s) => (
+        {filtered.map((s) => (
           <div key={s.id} className="card" onClick={() => openQuickLook(s)}>
             <div className="card-cover">
               {s.cover_url ? (
@@ -265,7 +427,6 @@ export default function Songs() {
         className="drawer"
         style={{ transform: isOpen ? "translateX(0)" : "translateX(100%)" }}
       >
-        {/* QUICK LOOK */}
         {isQuickLook && drawer && (
           <>
             <div className="drawer-header">
@@ -276,7 +437,6 @@ export default function Songs() {
                 <button
                   onClick={() => window.open(`/listen/${drawer.id}`, "_blank")}
                   className="btn-ghost btn-ghost--small"
-                  title="open listen page"
                 >
                   listen ↗
                 </button>
@@ -294,7 +454,6 @@ export default function Songs() {
                 </button>
               </div>
             </div>
-
             <div className="meta-table">
               {drawer.artist_name && (
                 <div className="meta-row">
@@ -337,7 +496,6 @@ export default function Songs() {
                 </div>
               )}
             </div>
-
             {quickGenres.length > 0 && (
               <div style={{ marginTop: "1rem" }}>
                 <div
@@ -357,7 +515,6 @@ export default function Songs() {
                 </div>
               </div>
             )}
-
             {quickMoods.length > 0 && (
               <div style={{ marginTop: "0.75rem" }}>
                 <div
@@ -377,7 +534,6 @@ export default function Songs() {
                 </div>
               </div>
             )}
-
             {drawer.prompt && (
               <div style={{ marginTop: "0.75rem" }}>
                 <div
@@ -400,7 +556,6 @@ export default function Songs() {
                 </p>
               </div>
             )}
-
             {drawer.notes && (
               <div style={{ marginTop: "0.75rem" }}>
                 <div
@@ -420,7 +575,6 @@ export default function Songs() {
                 </p>
               </div>
             )}
-
             {quickLinks.length > 0 && (
               <div style={{ marginTop: "0.75rem" }}>
                 <div
@@ -452,7 +606,6 @@ export default function Songs() {
           </>
         )}
 
-        {/* CREATE FORM */}
         {creating && (
           <>
             <div className="drawer-header">
@@ -461,7 +614,6 @@ export default function Songs() {
                 <X size={18} />
               </button>
             </div>
-
             <div className="form-stack">
               <label>
                 <span>title</span>
@@ -505,7 +657,6 @@ export default function Songs() {
                   ))}
                 </select>
               </label>
-
               <div>
                 <span className="field-label">secondary genres</span>
                 <div
@@ -556,7 +707,6 @@ export default function Songs() {
                   </button>
                 </div>
               </div>
-
               <label>
                 <span>status</span>
                 <select
@@ -573,7 +723,6 @@ export default function Songs() {
                   ))}
                 </select>
               </label>
-
               <div className="form-row">
                 <label>
                   <span>key</span>
@@ -619,7 +768,6 @@ export default function Songs() {
                   </select>
                 </label>
               </div>
-
               <div>
                 <span className="field-label">moods</span>
                 <div
@@ -667,7 +815,6 @@ export default function Songs() {
                   </button>
                 </div>
               </div>
-
               <label>
                 <span>suno prompt</span>
                 <textarea
@@ -688,7 +835,6 @@ export default function Songs() {
                   placeholder="any notes..."
                 />
               </label>
-
               <button
                 className="btn-primary btn"
                 onClick={handleSubmit}
