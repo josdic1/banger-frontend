@@ -180,7 +180,7 @@ export default function Albums() {
             <span>release date</span>
             <input
               type="date"
-              value={form.release_date || ""}
+              value={form.release_date ? form.release_date.slice(0, 10) : ""}
               onChange={(e) =>
                 setForm((f) => ({ ...f, release_date: e.target.value }))
               }
