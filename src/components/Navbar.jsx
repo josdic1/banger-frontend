@@ -13,7 +13,7 @@ export default function Navbar() {
       </span>
       <nav className="app-nav">
         <NavLink
-          to="/"
+          to="/dashboard"
           end
           className={({ isActive }) =>
             `app-nav__link${isActive ? " app-nav__link--active" : ""}`

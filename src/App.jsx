@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import Navbar from "./components/Navbar";
 import Songs from "./pages/Songs";
 import Artists from "./pages/Artists";
@@ -10,24 +11,28 @@ import Listen from "./pages/Listen";
 import NotFound from "./pages/NotFound";
 import Mobile from "./pages/Mobile";
 
+function RootRedirect() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      navigate("/mobile", { replace: true });
+    } else {
+      navigate("/dashboard", { replace: true });
+    }
+  }, []);
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* PUBLIC — no navbar */}
         <Route path="/listen/:id" element={<Listen />} />
         <Route path="/mobile" element={<Mobile />} />
 
-        {/* APP — with navbar */}
-        <Route
-          element={
-            <>
-              <Navbar />
-              <Outlet />
-            </>
-          }
-        >
-          <Route path="/" element={<Dashboard />} />
+        <Route element={<><Navbar /><Outlet /></>}>
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/songs" element={<Songs />} />
           <Route path="/songs/:id" element={<SongDetail />} />
           <Route path="/artists" element={<Artists />} />
