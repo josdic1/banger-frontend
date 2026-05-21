@@ -48,7 +48,7 @@ export default function Songs() {
   const [starredOnly, setStarredOnly] = useState(false);
 
   useEffect(() => {
-    getSongs().then(setSongs);
+    getSongs().then((data) => setSongs(Array.isArray(data) ? data : []));
     getArtists().then(setArtists);
     getGenres().then(setGenres);
     getMoods().then(setMoods);
