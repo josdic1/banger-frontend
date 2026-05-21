@@ -563,6 +563,104 @@ export default function Admin() {
           </div>
         </div>
       </div>
+
+      <PrivateSongs />
+    </div>
+  );
+}
+
+function PrivateSongs() {
+  const [songs, setSongs] = useState([]);
+
+  useEffect(() => {
+    fetch(`${MEDIA_URL}/api/songs/all`, {
+      headers: {
+        "x-admin-token": sessionStorage.getItem("banger_admin_token"),
+      },
+    })
+      .then((r) => r.json())
+      .then((data) => setSongs(data.filter((s) => s.private)));
+  }, []);
+
+  async function makePublic(id) {
+    await fetch(`${MEDIA_URL}/api/songs/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-token": sessionStorage.getItem("banger_admin_token"),
+      },
+      body: JSON.stringify({ private: false }),
+    });
+    setSongs((p) => p.filter((s) => s.id !== id));
+  }
+
+  return (
+    <div style={{ marginTop: "2rem", maxWidth: "700px" }}>
+      <h2
+        style={{
+          fontSize: "1rem",
+          fontWeight: 600,
+          marginBottom: "1rem",
+          color: "var(--zinc-900)",
+        }}
+      >
+        🔒 private songs{" "}
+        {songs.length > 0 && (
+          <span style={{ color: "var(--zinc-400)", fontWeight: 400 }}>
+            ({songs.length})
+          </span>
+        )}
+      </h2>
+
+      {songs.length === 0 && <p className="empty">no private songs.</p>}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+        {songs.map((s) => (
+          <div
+            key={s.id}
+            className="panel"
+            style={{
+              padding: "0.875rem 1rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "1rem",
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  color: "var(--zinc-900)",
+                }}
+              >
+                {s.title}
+              </div>
+              <div style={{ fontSize: "12px", color: "var(--zinc-500)" }}>
+                {s.artist_name || "—"} ·{" "}
+                <span className={`badge badge-${s.status}`}>{s.status}</span>
+              </div>
+            </div>
+            <button
+              onClick={() =>
+                navigator.clipboard.writeText(
+                  `${window.location.origin}/share/${s.share_token}`,
+                )
+              }
+              className="btn-ghost btn-ghost--small"
+              title="copy share link"
+            >
+              copy link
+            </button>
+            <button
+              onClick={() => makePublic(s.id)}
+              className="btn-ghost btn-ghost--small"
+            >
+              make public
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
