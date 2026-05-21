@@ -44,6 +44,19 @@ const LINK_ICONS = {
 
 const TABS = ["sections", "audio", "assets", "arrangement"];
 
+const adminHeaders = () => {
+  const token = sessionStorage.getItem("banger_admin_token");
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { "x-admin-token": token } : {}),
+  };
+};
+
+const adminFormHeaders = () => {
+  const token = sessionStorage.getItem("banger_admin_token");
+  return token ? { "x-admin-token": token } : {};
+};
+
 export default function SongDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -542,6 +555,7 @@ export default function SongDetail() {
                 </p>
               </div>
             )}
+
             <div
               style={{
                 marginTop: "1.25rem",
@@ -686,7 +700,7 @@ function SectionsTab({ sections, setSections, songId, sectionTypes }) {
     const label = count > 1 ? `${type} ${count}` : type;
     const res = await fetch(`${MEDIA_URL}/api/songs/${songId}/sections`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: adminHeaders(),
       body: JSON.stringify({ type, label, order_index: sections.length }),
     });
     const created = await res.json();
@@ -743,7 +757,7 @@ function SectionCard({ section, setSections }) {
       `${MEDIA_URL}/api/songs/${section.song_id}/sections/${section.id}`,
       {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: adminHeaders(),
         body: JSON.stringify({ lyrics }),
       },
     );
@@ -755,7 +769,10 @@ function SectionCard({ section, setSections }) {
   async function remove() {
     await fetch(
       `${MEDIA_URL}/api/songs/${section.song_id}/sections/${section.id}`,
-      { method: "DELETE" },
+      {
+        method: "DELETE",
+        headers: adminFormHeaders(),
+      },
     );
     setSections((prev) => prev.filter((x) => x.id !== section.id));
   }
