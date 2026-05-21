@@ -1,54 +1,78 @@
 const BASE = `${import.meta.env.VITE_API_URL}/api`;
 export const MEDIA_URL = import.meta.env.VITE_API_URL;
 
+const adminHeaders = () => {
+  const token = sessionStorage.getItem("banger_admin_token");
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { "x-admin-token": token } : {}),
+  };
+};
+
+const adminFormHeaders = () => {
+  const token = sessionStorage.getItem("banger_admin_token");
+  return token ? { "x-admin-token": token } : {};
+};
+
 export const getArtists = () => fetch(`${BASE}/artists`).then((r) => r.json());
 export const getGenres = () => fetch(`${BASE}/genres`).then((r) => r.json());
-export const getSongs = () => fetch(`${BASE}/songs`).then((r) => r.json());
+
+export const getSongs = () => {
+  const token = sessionStorage.getItem("banger_admin_token");
+  const url = token ? `${BASE}/songs/all` : `${BASE}/songs`;
+  return fetch(url, { headers: adminHeaders() }).then((r) => r.json());
+};
+
 export const getSong = (id) =>
   fetch(`${BASE}/songs/${id}`).then((r) => r.json());
+
+export const getSongByToken = (token) =>
+  fetch(`${BASE}/songs/share/${token}`).then((r) => r.json());
 
 export const createSong = (data) =>
   fetch(`${BASE}/songs`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
 
 export const updateSong = (id, data) =>
   fetch(`${BASE}/songs/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
 
 export const deleteSong = (id) =>
   fetch(`${BASE}/songs/${id}`, {
     method: "DELETE",
+    headers: adminHeaders(),
   }).then((r) => r.json());
 
 export const createArtist = (data) =>
   fetch(`${BASE}/artists`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
 
 export const updateArtist = (id, data) =>
   fetch(`${BASE}/artists/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
 
 export const deleteArtist = (id) =>
   fetch(`${BASE}/artists/${id}`, {
     method: "DELETE",
+    headers: adminHeaders(),
   }).then((r) => r.json());
 
 export const createGenre = (data) =>
   fetch(`${BASE}/genres`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
 
@@ -59,12 +83,13 @@ export const getSongGenres = (songId) =>
 export const addSongGenre = (songId, genreId) =>
   fetch(`${BASE}/songs/${songId}/genres`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify({ genre_id: genreId }),
   }).then((r) => r.json());
 export const removeSongGenre = (songId, genreId) =>
   fetch(`${BASE}/songs/${songId}/genres/${genreId}`, {
     method: "DELETE",
+    headers: adminHeaders(),
   }).then((r) => r.json());
 
 export const getSongMoods = (songId) =>
@@ -72,18 +97,19 @@ export const getSongMoods = (songId) =>
 export const addSongMood = (songId, moodId) =>
   fetch(`${BASE}/songs/${songId}/moods`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify({ mood_id: moodId }),
   }).then((r) => r.json());
 export const removeSongMood = (songId, moodId) =>
   fetch(`${BASE}/songs/${songId}/moods/${moodId}`, {
     method: "DELETE",
+    headers: adminHeaders(),
   }).then((r) => r.json());
 
 export const createMood = (data) =>
   fetch(`${BASE}/moods`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
 
@@ -92,12 +118,13 @@ export const getSongLinks = (songId) =>
 export const addSongLink = (songId, data) =>
   fetch(`${BASE}/songs/${songId}/links`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
 export const deleteSongLink = (songId, linkId) =>
   fetch(`${BASE}/songs/${songId}/links/${linkId}`, {
     method: "DELETE",
+    headers: adminHeaders(),
   }).then((r) => r.json());
 
 export const getSongAudio = (songId) =>
@@ -106,12 +133,14 @@ export const getSongAudio = (songId) =>
 export const uploadAudio = (songId, formData) =>
   fetch(`${BASE}/songs/${songId}/audio`, {
     method: "POST",
-    body: formData, // no Content-Type header — browser sets it automatically for FormData
+    headers: adminFormHeaders(),
+    body: formData,
   }).then((r) => r.json());
 
 export const deleteAudio = (songId, audioId) =>
   fetch(`${BASE}/songs/${songId}/audio/${audioId}`, {
     method: "DELETE",
+    headers: adminHeaders(),
   }).then((r) => r.json());
 
 export const getList = (category) =>
@@ -119,42 +148,40 @@ export const getList = (category) =>
 export const addToList = (category, value) =>
   fetch(`${BASE}/lists/${category}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify({ value }),
   }).then((r) => r.json());
 
 export const getAlbums = () => fetch(`${BASE}/albums`).then((r) => r.json());
-
 export const getAlbum = (id) =>
   fetch(`${BASE}/albums/${id}`).then((r) => r.json());
-
 export const createAlbum = (data) =>
   fetch(`${BASE}/albums`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
-
 export const updateAlbum = (id, data) =>
   fetch(`${BASE}/albums/${id}`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
-
 export const deleteAlbum = (id) =>
-  fetch(`${BASE}/albums/${id}`, { method: "DELETE" }).then((r) => r.json());
-
+  fetch(`${BASE}/albums/${id}`, {
+    method: "DELETE",
+    headers: adminHeaders(),
+  }).then((r) => r.json());
 export const addSongToAlbum = (albumId, data) =>
   fetch(`${BASE}/albums/${albumId}/songs`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: adminHeaders(),
     body: JSON.stringify(data),
   }).then((r) => r.json());
-
 export const removeSongFromAlbum = (albumId, songId) =>
   fetch(`${BASE}/albums/${albumId}/songs/${songId}`, {
     method: "DELETE",
+    headers: adminHeaders(),
   }).then((r) => r.json());
 
 export const getSongAlbums = (songId) =>
@@ -165,14 +192,14 @@ export const getDashboard = () =>
 
 export const getSongImages = (songId) =>
   fetch(`${BASE}/songs/${songId}/images`).then((r) => r.json());
-
 export const uploadSongImage = (songId, formData) =>
   fetch(`${BASE}/songs/${songId}/images`, {
     method: "POST",
+    headers: adminFormHeaders(),
     body: formData,
   }).then((r) => r.json());
-
 export const deleteSongImage = (songId, imageId) =>
   fetch(`${BASE}/songs/${songId}/images/${imageId}`, {
     method: "DELETE",
+    headers: adminHeaders(),
   }).then((r) => r.json());

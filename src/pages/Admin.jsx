@@ -74,6 +74,10 @@ export default function Admin() {
   function handleLogin() {
     if (pw === ADMIN_PASSWORD) {
       sessionStorage.setItem("banger_admin", "yes");
+      sessionStorage.setItem(
+        "banger_admin_token",
+        pw === ADMIN_PASSWORD ? import.meta.env.VITE_ADMIN_TOKEN : "",
+      );
       setAuthed(true);
       setPwError(false);
     } else {
@@ -83,6 +87,7 @@ export default function Admin() {
 
   function handleLogout() {
     sessionStorage.removeItem("banger_admin");
+    sessionStorage.removeItem("banger_admin_token");
     setAuthed(false);
     setPw("");
   }

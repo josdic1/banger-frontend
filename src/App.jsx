@@ -8,6 +8,7 @@ import Albums from "./pages/Albums";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
 import Listen from "./pages/Listen";
+import ShareView from "./pages/ShareView";
 import NotFound from "./pages/NotFound";
 import Mobile from "./pages/Mobile";
 
@@ -28,6 +29,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/listen/:id" element={<Listen />} />
+        <Route path="/share/:token" element={<ShareView />} />
         <Route path="/mobile" element={<Mobile />} />
 
         <Route element={<><Navbar /><Outlet /></>}>

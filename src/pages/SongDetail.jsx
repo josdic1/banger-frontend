@@ -542,6 +542,71 @@ export default function SongDetail() {
                 </p>
               </div>
             )}
+            <div
+              style={{
+                marginTop: "1.25rem",
+                borderTop: "1px solid var(--zinc-100)",
+                paddingTop: "1rem",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                <span className="section-title">visibility</span>
+                <button
+                  onClick={async () => {
+                    const updated = await updateSong(id, {
+                      private: !song.private,
+                    });
+                    setSong((prev) => ({ ...prev, private: updated.private }));
+                  }}
+                  className="btn-ghost btn-ghost--small"
+                  style={{
+                    color: song.private ? "var(--accent)" : "var(--zinc-400)",
+                  }}
+                >
+                  {song.private ? "🔒 private" : "🌐 public"}
+                </button>
+              </div>
+              {song.private && song.share_token && (
+                <div>
+                  <p
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--zinc-500)",
+                      marginBottom: "0.4rem",
+                    }}
+                  >
+                    share link:
+                  </p>
+                  <button
+                    onClick={() =>
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/share/${song.share_token}`,
+                      )
+                    }
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--accent)",
+                      wordBreak: "break-all",
+                      textAlign: "left",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: 0,
+                    }}
+                    title="click to copy"
+                  >
+                    {window.location.origin}/share/{song.share_token} 📋
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
