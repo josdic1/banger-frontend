@@ -774,7 +774,7 @@ function SectionCard({ section, setSections }) {
         headers: adminFormHeaders(),
       },
     );
-    setSections((prev) => prev.filter((x) => x.id !== section.id));
+    setSections((prev) => prev.filter((x) => x.id != section.id));
   }
 
   return (
