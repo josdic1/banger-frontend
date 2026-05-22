@@ -18,7 +18,7 @@ function RootRedirect() {
     if (window.innerWidth < 768) {
       navigate("/mobile", { replace: true });
     } else {
-      navigate("/dashboard", { replace: true });
+      navigate("/songs", { replace: true });
     }
   }, []);
   return null;

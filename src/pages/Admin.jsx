@@ -80,6 +80,7 @@ export default function Admin() {
       );
       setAuthed(true);
       setPwError(false);
+      window.dispatchEvent(new Event("banger-admin-change"));
     } else {
       setPwError(true);
     }
@@ -90,6 +91,7 @@ export default function Admin() {
     sessionStorage.removeItem("banger_admin_token");
     setAuthed(false);
     setPw("");
+    window.dispatchEvent(new Event("banger-admin-change"));
   }
 
   async function handleAddValue(cat) {

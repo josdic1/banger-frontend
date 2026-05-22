@@ -1,6 +1,20 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
   getSong,
   getSongLinks,
   addSongLink,
@@ -737,20 +751,84 @@ function SectionsTab({ sections, setSections, songId, sectionTypes }) {
 
       {sections.length === 0 && <p className="empty">no sections yet.</p>}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-        {sections
-          .slice()
-          .sort((a, b) => a.order_index - b.order_index)
-          .map((sec) => (
+      <SortableSections sections={sections} setSections={setSections} />
+    </div>
+  );
+}
+
+function SortableSections({ sections, setSections }) {
+  const sensors = useSensors(useSensor(PointerSensor));
+  const orderedSections = sections
+    .slice()
+    .sort((a, b) => a.order_index - b.order_index);
+
+  async function handleDragEnd(event) {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = orderedSections.findIndex((sec) => sec.id === active.id);
+    const newIndex = orderedSections.findIndex((sec) => sec.id === over.id);
+
+    const reordered = arrayMove(orderedSections, oldIndex, newIndex).map(
+      (sec, index) => ({
+        ...sec,
+        order_index: index,
+      }),
+    );
+
+    setSections(reordered);
+
+    await Promise.all(
+      reordered.map((sec) =>
+        fetch(`${MEDIA_URL}/api/songs/${sec.song_id}/sections/${sec.id}`, {
+          method: "PATCH",
+          headers: adminHeaders(),
+          body: JSON.stringify({ order_index: sec.order_index }),
+        }),
+      ),
+    );
+  }
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={orderedSections.map((sec) => sec.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}
+        >
+          {orderedSections.map((sec) => (
             <SectionCard key={sec.id} section={sec} setSections={setSections} />
           ))}
-      </div>
-    </div>
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 }
 
 function SectionCard({ section, setSections }) {
   const [lyrics, setLyrics] = useState(section.lyrics || "");
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: section.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
 
   async function save() {
     await fetch(
@@ -778,7 +856,7 @@ function SectionCard({ section, setSections }) {
   }
 
   return (
-    <div className="section-card">
+    <div ref={setNodeRef} style={style} className="section-card">
       <div
         style={{
           display: "flex",
@@ -787,7 +865,19 @@ function SectionCard({ section, setSections }) {
           marginBottom: "0.4rem",
         }}
       >
-        <span className="section-label">{section.label}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <button
+            type="button"
+            {...attributes}
+            {...listeners}
+            className="btn-icon"
+            style={{ cursor: "grab", color: "var(--zinc-400)" }}
+            title="drag to reorder"
+          >
+            ⋮⋮
+          </button>
+          <span className="section-label">{section.label}</span>
+        </div>
         <button onClick={remove} className="btn-icon">
           ×
         </button>
