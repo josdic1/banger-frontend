@@ -47,6 +47,8 @@ export default function Songs() {
   const [sortBy, setSortBy] = useState("newest");
   const [starredOnly, setStarredOnly] = useState(false);
 
+  const isAdmin = localStorage.getItem("banger_admin") === "true";
+
   useEffect(() => {
     getSongs().then((data) => setSongs(Array.isArray(data) ? data : []));
     getArtists().then(setArtists);
@@ -373,7 +375,13 @@ export default function Songs() {
             </button>
             <div className="card-sub">{s.artist_name || "—"}</div>
             <div className="card-meta">
-              <span className={`badge badge-${s.status}`}>{s.status}</span>
+              {isAdmin ? (
+                <span className={`badge badge-${s.status}`}>{s.status}</span>
+              ) : (
+                <span style={{ fontSize: "12px", color: "var(--zinc-400)" }}>
+                  {s.genre_title || "—"}
+                </span>
+              )}
             </div>
             <div
               className="card-meta"
