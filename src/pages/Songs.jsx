@@ -21,6 +21,43 @@ import {
 import { Plus, X, ArrowRight, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+const GENRE_COLORS = {
+  country: { bg: "#fef3c7", text: "#92400e" },
+  electro: { bg: "#dbeafe", text: "#1e40af" },
+  edm: { bg: "#ede9fe", text: "#5b21b6" },
+  dnb: { bg: "#fce7f3", text: "#9d174d" },
+  synthwave: { bg: "#f3e8ff", text: "#6b21a8" },
+  punk: { bg: "#fee2e2", text: "#991b1b" },
+  highlife: { bg: "#d1fae5", text: "#065f46" },
+  indie: { bg: "#ffedd5", text: "#9a3412" },
+  darkwave: { bg: "#1f2937", text: "#e5e7eb" },
+  kpop: { bg: "#fdf2f8", text: "#9d174d" },
+  pop: { bg: "#e0f2fe", text: "#075985" },
+  folk: { bg: "#ecfccb", text: "#3f6212" },
+  rock: { bg: "#fee2e2", text: "#991b1b" },
+};
+
+function GenrePill({ genre }) {
+  const g = GENRE_COLORS[genre?.toLowerCase()] || {
+    bg: "#f3f4f6",
+    text: "#4b5563",
+  };
+  return (
+    <span
+      style={{
+        fontSize: "11px",
+        fontWeight: 500,
+        padding: "2px 7px",
+        borderRadius: "4px",
+        background: g.bg,
+        color: g.text,
+      }}
+    >
+      {genre || "—"}
+    </span>
+  );
+}
+
 export default function Songs() {
   const navigate = useNavigate();
   const [songs, setSongs] = useState([]);
@@ -373,14 +410,12 @@ export default function Songs() {
             >
               {s.starred ? "★" : "☆"}
             </button>
-            <div className="card-sub">{s.artist_name || "—"}</div>
+            {isAdmin && <div className="card-sub">{s.artist_name || "—"}</div>}
             <div className="card-meta">
               {isAdmin ? (
                 <span className={`badge badge-${s.status}`}>{s.status}</span>
               ) : (
-                <span style={{ fontSize: "12px", color: "var(--zinc-400)" }}>
-                  {s.genre_title || "—"}
-                </span>
+                <GenrePill genre={s.genre_title} />
               )}
             </div>
             <div
