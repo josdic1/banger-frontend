@@ -22,19 +22,19 @@ import { Plus, X, ArrowRight, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const GENRE_COLORS = {
-  country: { bg: "#fef3c7", text: "#92400e" },
-  electro: { bg: "#dbeafe", text: "#1e40af" },
-  edm: { bg: "#ede9fe", text: "#5b21b6" },
-  dnb: { bg: "#fce7f3", text: "#9d174d" },
-  synthwave: { bg: "#f3e8ff", text: "#6b21a8" },
-  punk: { bg: "#fee2e2", text: "#991b1b" },
-  highlife: { bg: "#d1fae5", text: "#065f46" },
-  indie: { bg: "#ffedd5", text: "#9a3412" },
-  darkwave: { bg: "#1f2937", text: "#e5e7eb" },
-  kpop: { bg: "#fdf2f8", text: "#9d174d" },
-  pop: { bg: "#e0f2fe", text: "#075985" },
-  folk: { bg: "#ecfccb", text: "#3f6212" },
-  rock: { bg: "#fee2e2", text: "#991b1b" },
+  country: { bg: "rgba(201, 168, 76, 0.12)", text: "#c9a84c" }, // your own accent gold
+  electro: { bg: "rgba(96, 165, 250, 0.10)", text: "#60a5fa" },
+  edm: { bg: "rgba(167, 139, 250, 0.10)", text: "#a78bfa" },
+  dnb: { bg: "rgba(244, 114, 182, 0.10)", text: "#f472b6" },
+  synthwave: { bg: "rgba(192, 132, 252, 0.10)", text: "#c084fc" },
+  punk: { bg: "rgba(248, 113, 113, 0.10)", text: "#f87171" },
+  highlife: { bg: "rgba(52, 211, 153, 0.10)", text: "#34d399" },
+  indie: { bg: "rgba(251, 146, 60, 0.10)", text: "#fb923c" },
+  darkwave: { bg: "rgba(148, 163, 184, 0.08)", text: "#94a3b8" },
+  kpop: { bg: "rgba(232, 121, 249, 0.10)", text: "#e879f9" },
+  pop: { bg: "rgba(56, 189, 248, 0.10)", text: "#38bdf8" },
+  folk: { bg: "rgba(163, 230, 53, 0.10)", text: "#a3e635" },
+  rock: { bg: "rgba(251, 113, 133, 0.10)", text: "#fb7185" },
 };
 
 function GenrePill({ genre }) {
